@@ -16,6 +16,13 @@ PlasmoidItem {
 
     preferredRepresentation: fullRepresentation
 
+    // Fix: config connections outside WebEngineView to avoid spurious reloads on KConfig init
+    Connections {
+        target: Plasmoid.configuration
+        function onColorThemeChanged() { root.reloadWidget() }
+        function onLocaleChanged() { root.reloadWidget() }
+    }
+
     function buildHtml() {
         var colorTheme = Plasmoid.configuration.colorTheme || "dark"
         var locale = Plasmoid.configuration.locale || "en"
@@ -74,7 +81,8 @@ PlasmoidItem {
     <!-- TradingView Widget BEGIN -->
     <div class="tradingview-widget-container">
         <div class="tradingview-widget-container__widget"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+        <!-- No async: ensures document.currentScript is set when the IIFE executes -->
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js">
         {
             "colorTheme": "${colorTheme}",
             "dateRange": "12M",
@@ -148,8 +156,9 @@ PlasmoidItem {
     }
 
     function reloadWidget() {
-        // baseUrl HTTPS: sin origen válido, el embed de TradingView falla en QtWebEngine
-        webView.loadHtml(root.buildHtml(), "https://www.tradingview.com/")
+        // No baseUrl: avoids TradingView detecting origin as their own domain (self-embed block)
+        // localContentCanAccessRemoteUrls:true allows the local/null-origin page to load remote iframes
+        webView.loadHtml(root.buildHtml())
     }
 
     function openConfigure() {
@@ -174,25 +183,26 @@ PlasmoidItem {
             settings.javascriptEnabled: true
             settings.localContentCanAccessRemoteUrls: true
             settings.errorPageEnabled: false
+            settings.webGLEnabled: true
 
             onLoadingChanged: function (loadRequest) {
                 if (loadRequest.status === WebEngineView.LoadSucceededStatus) {
                     statusLabel.visible = false
                     busyIndicator.visible = false
                 } else if (loadRequest.status === WebEngineView.LoadFailedStatus) {
-                    statusLabel.text = "Error al cargar el widget: " + loadRequest.errorString
+                    statusLabel.text = "Error cargando widget: " + loadRequest.errorString
                     statusLabel.visible = true
                     busyIndicator.visible = false
                 }
             }
 
-            Component.onCompleted: root.reloadWidget()
-
-            Connections {
-                target: Plasmoid.configuration
-                function onColorThemeChanged() { root.reloadWidget() }
-                function onLocaleChanged() { root.reloadWidget() }
+            onJavaScriptConsoleMessage: function(level, message, lineNumber, sourceID) {
+                if (level >= 2) {
+                    console.warn("[TV-Widget]", message, "(" + sourceID + ":" + lineNumber + ")")
+                }
             }
+
+            Component.onCompleted: root.reloadWidget()
         }
 
         PlasmaComponents.ToolButton {
