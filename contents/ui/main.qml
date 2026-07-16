@@ -16,13 +16,12 @@ PlasmoidItem {
 
     preferredRepresentation: fullRepresentation
 
-    // Fix: config connections outside WebEngineView to avoid spurious reloads on KConfig init
-    Connections {
-        target: Plasmoid.configuration
-        function onColorThemeChanged() { root.reloadWidget() }
-        function onLocaleChanged() { root.reloadWidget() }
-    }
+    // _reloadRequest is a counter. Incrementing it from anywhere triggers
+    // the Connections inside WebEngineView (which CAN access webView).
+    property int _reloadRequest: 0
+    property bool _widgetReady: false
 
+    // These can stay here: buildHtml and openConfigure don't touch webView.
     function buildHtml() {
         var colorTheme = Plasmoid.configuration.colorTheme || "dark"
         var locale = Plasmoid.configuration.locale || "en"
@@ -81,8 +80,7 @@ PlasmoidItem {
     <!-- TradingView Widget BEGIN -->
     <div class="tradingview-widget-container">
         <div class="tradingview-widget-container__widget"></div>
-        <!-- No async: ensures document.currentScript is set when the IIFE executes -->
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js">
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
         {
             "colorTheme": "${colorTheme}",
             "dateRange": "12M",
@@ -155,17 +153,19 @@ PlasmoidItem {
 </html>`
     }
 
-    function reloadWidget() {
-        // No baseUrl: avoids TradingView detecting origin as their own domain (self-embed block)
-        // localContentCanAccessRemoteUrls:true allows the local/null-origin page to load remote iframes
-        webView.loadHtml(root.buildHtml())
-    }
-
     function openConfigure() {
         var action = Plasmoid.internalAction("configure")
         if (action) {
             action.trigger()
         }
+    }
+
+    // Incrementing _reloadRequest triggers the Connections inside WebEngineView.
+    // fullRepresentation is a Component scope: webView is NOT visible from here.
+    Connections {
+        target: Plasmoid.configuration
+        function onColorThemeChanged() { if (root._widgetReady) root._reloadRequest++ }
+        function onLocaleChanged() { if (root._widgetReady) root._reloadRequest++ }
     }
 
     fullRepresentation: Rectangle {
@@ -185,24 +185,37 @@ PlasmoidItem {
             settings.errorPageEnabled: false
             settings.webGLEnabled: true
 
+            // _reloadRequest incremented from PlasmoidItem → load new HTML here
+            // (webView IS in scope inside fullRepresentation Component)
+            Connections {
+                target: root
+                function on_ReloadRequestChanged() {
+                    webView.loadHtml(root.buildHtml(), "https://example.com/")
+                }
+            }
+
             onLoadingChanged: function (loadRequest) {
                 if (loadRequest.status === WebEngineView.LoadSucceededStatus) {
                     statusLabel.visible = false
                     busyIndicator.visible = false
                 } else if (loadRequest.status === WebEngineView.LoadFailedStatus) {
-                    statusLabel.text = "Error cargando widget: " + loadRequest.errorString
+                    statusLabel.text = "Error: " + loadRequest.errorString
                     statusLabel.visible = true
                     busyIndicator.visible = false
                 }
             }
 
-            onJavaScriptConsoleMessage: function(level, message, lineNumber, sourceID) {
-                if (level >= 2) {
-                    console.warn("[TV-Widget]", message, "(" + sourceID + ":" + lineNumber + ")")
-                }
+            onRenderProcessTerminated: function(terminationStatus, exitCode) {
+                var reasons = ["Normal", "Abnormal", "Crashed", "Killed"]
+                statusLabel.text = "Renderer crash (" + reasons[terminationStatus] + ")"
+                statusLabel.visible = true
+                busyIndicator.visible = false
             }
 
-            Component.onCompleted: root.reloadWidget()
+            Component.onCompleted: {
+                root._widgetReady = true
+                webView.loadHtml(root.buildHtml(), "https://example.com/")
+            }
         }
 
         PlasmaComponents.ToolButton {

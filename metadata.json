@@ -3,7 +3,7 @@
         "Id": "org.kde.plasma.tradingview",
         "Name": "TradingView Market Overview",
         "Description": "Display live market data from TradingView (Plasma 6 port)",
-        "Category": "Financial",
+        "Category": "Online Services",
         "Authors": [
             {
                 "Name": "StrKare",
@@ -13,7 +13,7 @@
                 "Name": "dguillermo"
             }
         ],
-        "Version": "2.1.3",
+        "Version": "2.1.4",
         "License": "MIT",
         "Website": "https://github.com/dguillermo/tradingview-plasma6-widget",
         "Icon": "office-chart-line"

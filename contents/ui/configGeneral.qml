@@ -8,7 +8,9 @@ KCM.SimpleKCM {
     id: page
 
     property string cfg_colorTheme
+    property string cfg_colorThemeDefault: "dark"
     property alias cfg_locale: localeField.text
+    property string cfg_localeDefault: "en"
 
     readonly property var colorThemeModel: [
         { text: i18n("Oscuro"), value: "dark" },
