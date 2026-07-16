@@ -12,3 +12,10 @@
 
 # 로그 파일
 *.log
+
+# Capturas de depuración local
+error-tradingview.png
+
+# Homelab-only notes (not part of the public project)
+DOCUMENTACION.md
+INFORME-*.md

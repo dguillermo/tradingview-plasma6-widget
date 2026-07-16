@@ -1,46 +1,28 @@
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtWebEngine 1.8
-import org.kde.plasma.plasmoid 2.0
-import org.kde.plasma.core 2.0 as PlasmaCore
-import org.kde.plasma.components 2.0 as PlasmaComponents
+import QtQuick
+import QtQuick.Layouts
+import QtWebEngine
+import org.kde.plasma.plasmoid
+import org.kde.plasma.components as PlasmaComponents
+import org.kde.kirigami.platform as Kirigami
 
-Item {
+PlasmoidItem {
     id: root
-    
+
     Layout.minimumWidth: 350
     Layout.minimumHeight: 500
     Layout.preferredWidth: 450
     Layout.preferredHeight: 700
-    
-    Plasmoid.preferredRepresentation: Plasmoid.fullRepresentation
-    
-    Plasmoid.fullRepresentation: Rectangle {
-        anchors.fill: parent
-        color: PlasmaCore.Theme.backgroundColor
-        border.color: Qt.rgba(PlasmaCore.Theme.highlightColor.r, PlasmaCore.Theme.highlightColor.g, PlasmaCore.Theme.highlightColor.b, 0.3)
-        border.width: 1
-        radius: 4
-        
-        WebEngineView {
-            id: webView
-            anchors.fill: parent
-            anchors.margins: 3
-            
-            settings.javascriptEnabled: true
-            settings.localContentCanAccessRemoteUrls: true
-            
-            onLoadingChanged: {
-                if (loadRequest.status === WebEngineView.LoadSucceededStatus) {
-                    loadingLabel.visible = false
-                } else if (loadRequest.status === WebEngineView.LoadFailedStatus) {
-                    loadingLabel.text = "Failed to load TradingView"
-                }
-            }
-            
-            Component.onCompleted: {
-                var htmlContent = `<!DOCTYPE html>
-<html lang="en">
+
+    preferredRepresentation: fullRepresentation
+
+    function buildHtml() {
+        var colorTheme = Plasmoid.configuration.colorTheme || "dark"
+        var locale = Plasmoid.configuration.locale || "en"
+        var backgroundColor = colorTheme === "light" ? "#ffffff" : "#232530"
+        var borderColor = colorTheme === "light" ? "#e0e3eb" : "#363a45"
+
+        return `<!DOCTYPE html>
+<html lang="${locale}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,13 +33,13 @@ Item {
             padding: 0;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #232530;
+            background: ${backgroundColor};
         }
 
         .tradingview-widget-container {
             width: 100%;
             height: 100vh;
-            background: #232530;
+            background: ${backgroundColor};
         }
 
         .tradingview-widget-container__widget {
@@ -73,8 +55,8 @@ Item {
             font-size: 10px;
             text-align: center;
             padding: 5px;
-            background: rgba(35, 37, 48, 0.95);
-            border-top: 1px solid #363a45;
+            background: ${backgroundColor};
+            border-top: 1px solid ${borderColor};
         }
 
         .tradingview-widget-copyright a {
@@ -85,18 +67,62 @@ Item {
         .blue-text {
             color: #3d9eff;
         }
+
+        #tv-error-message {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            color: #e06c75;
+            background: ${backgroundColor};
+        }
+
+        #tv-error-message p {
+            margin: 4px 0;
+            color: ${colorTheme === "light" ? "#333333" : "#d1d4dc"};
+        }
+
+        #tv-error-retry {
+            margin-top: 12px;
+            padding: 6px 16px;
+            border-radius: 4px;
+            border: 1px solid #3d9eff;
+            background: transparent;
+            color: #3d9eff;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        #tv-error-retry:hover {
+            background: rgba(61, 158, 255, 0.15);
+        }
     </style>
 </head>
 <body>
     <!-- TradingView Widget BEGIN -->
     <div class="tradingview-widget-container">
-        
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+
+        <div id="tv-error-message">
+            <strong>No se pudo cargar TradingView</strong>
+            <p>Comprueba tu conexión a internet o si s3.tradingview.com está accesible.</p>
+            <button id="tv-error-retry" onclick="window.location.reload()">Reintentar</button>
+        </div>
+
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async
+            onerror="document.getElementById('tv-error-message').style.display='flex'">
         {
-            "colorTheme": "dark",
+            "colorTheme": "${colorTheme}",
             "dateRange": "12M",
             "showChart": true,
-            "locale": "en",
+            "locale": "${locale}",
             "largeChartUrl": "",
             "isTransparent": false,
             "showSymbolLogo": true,
@@ -158,22 +184,77 @@ Item {
             ]
         }
         </script>
+
+        <script>
+            // Si a los 10s el iframe del widget no se ha inyectado, TradingView
+            // no respondio (bloqueo de red/DNS/firewall) aunque el <script> cargase.
+            setTimeout(function () {
+                var hasWidget = document.querySelector('.tradingview-widget-container__widget iframe')
+                if (!hasWidget) {
+                    document.getElementById('tv-error-message').style.display = 'flex'
+                }
+            }, 10000)
+        </script>
     </div>
     <!-- TradingView Widget END -->
 </body>
 </html>`
-                loadHtml(htmlContent)
+    }
+
+    fullRepresentation: Rectangle {
+        anchors.fill: parent
+        color: Kirigami.Theme.backgroundColor
+        border.color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.3)
+        border.width: 1
+        radius: 4
+
+        WebEngineView {
+            id: webView
+            anchors.fill: parent
+            anchors.margins: 3
+
+            settings.javascriptEnabled: true
+            settings.localContentCanAccessRemoteUrls: true
+
+            onLoadingChanged: function (loadRequest) {
+                if (loadRequest.status === WebEngineView.LoadSucceededStatus) {
+                    statusLabel.visible = false
+                } else if (loadRequest.status === WebEngineView.LoadFailedStatus) {
+                    statusLabel.text = "Error al cargar el widget: " + loadRequest.errorString
+                    statusLabel.visible = true
+                    busyIndicator.visible = false
+                }
+            }
+
+            Component.onCompleted: loadHtml(root.buildHtml())
+
+            Connections {
+                target: Plasmoid.configuration
+                function onColorThemeChanged() { webView.loadHtml(root.buildHtml()) }
+                function onLocaleChanged() { webView.loadHtml(root.buildHtml()) }
             }
         }
-        
-        PlasmaComponents.Label {
-            id: loadingLabel
+
+        PlasmaComponents.BusyIndicator {
+            id: busyIndicator
             anchors.centerIn: parent
-            text: "Loading TradingView Widget..."
+            running: statusLabel.visible
+            visible: running
+        }
+
+        PlasmaComponents.Label {
+            id: statusLabel
+            anchors.top: busyIndicator.bottom
+            anchors.topMargin: 8
+            anchors.horizontalCenter: parent.horizontalCenter
+            text: "Cargando widget de TradingView..."
             visible: true
             z: 999
             font.pixelSize: 14
-            color: PlasmaCore.Theme.textColor
+            color: Kirigami.Theme.textColor
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WordWrap
+            width: parent.width - 24
         }
     }
 }

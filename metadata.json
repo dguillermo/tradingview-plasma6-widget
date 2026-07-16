@@ -2,21 +2,22 @@
     "KPlugin": {
         "Id": "org.kde.plasma.tradingview",
         "Name": "TradingView Market Overview",
-        "Description": "Display live market data from TradingView",
+        "Description": "Display live market data from TradingView (Plasma 6 port)",
         "Category": "Financial",
         "Authors": [
             {
                 "Name": "StrKare",
                 "Email": "berrybasedberry@gmail.com"
+            },
+            {
+                "Name": "dguillermo"
             }
         ],
-        "Version": "1.0.0",
-        "Website": "https://github.com/StrKare/tradingview-plasma-widget"
+        "Version": "2.0.2",
+        "License": "MIT",
+        "Website": "https://github.com/dguillermo/tradingview-plasma6-widget",
+        "Icon": "office-chart-line"
     },
     "KPackageStructure": "Plasma/Applet",
-    "X-Plasma-API": "declarativeappletscript",
-    "X-Plasma-MainScript": "ui/main.qml",
-    "X-KDE-ServiceTypes": [
-        "Plasma/Applet"
-    ]
+    "X-Plasma-API-Minimum-Version": "6.0"
 }
