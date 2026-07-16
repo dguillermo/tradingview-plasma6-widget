@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Controls as QQC2
 import QtWebEngine
 import org.kde.plasma.plasmoid
 import org.kde.plasma.components as PlasmaComponents
@@ -201,6 +202,13 @@ PlasmoidItem {
 </html>`
     }
 
+    function openConfigure() {
+        var action = Plasmoid.internalAction("configure")
+        if (action) {
+            action.trigger()
+        }
+    }
+
     fullRepresentation: Rectangle {
         anchors.fill: parent
         color: Kirigami.Theme.backgroundColor
@@ -233,6 +241,21 @@ PlasmoidItem {
                 function onColorThemeChanged() { webView.loadHtml(root.buildHtml()) }
                 function onLocaleChanged() { webView.loadHtml(root.buildHtml()) }
             }
+        }
+
+        PlasmaComponents.ToolButton {
+            id: configureButton
+            anchors.top: parent.top
+            anchors.right: parent.right
+            anchors.margins: 8
+            z: 1000
+            icon.name: "configure"
+            text: i18n("Configure")
+            display: PlasmaComponents.ToolButton.IconOnly
+            QQC2.ToolTip.visible: hovered
+            QQC2.ToolTip.text: i18n("Configure TradingView Market Overview")
+            Accessible.name: i18n("Configure")
+            onClicked: root.openConfigure()
         }
 
         PlasmaComponents.BusyIndicator {

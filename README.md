@@ -62,7 +62,7 @@ kpackagetool6 --type Plasma/Applet --remove org.kde.plasma.tradingview
 
 ## Configuration
 
-Right-click the widget → **"Configure TradingView Market Overview..."**:
+Right-click the widget → **"Configure TradingView Market Overview..."**, or use the **configure** button (gear icon) in the top-right corner of the widget:
 
 - **Color theme**: dark / light (default: dark, same as the original widget)
 - **Language**: ISO code passed to TradingView (`en`, `es`, etc.)
