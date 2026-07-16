@@ -153,8 +153,23 @@ Full migration from Plasma 5 / Qt 5 / KF5 to Plasma 6 / Qt 6 / KF6:
 ### `contents/config/` and `contents/ui/configGeneral.qml`
 - `import org.kde.plasma.configuration 2.0` → versionless.
 - The original `config.qml` referenced `configGeneral.qml`, a file that **did not exist** in the original repo (the config dialog was broken out of the box). Added:
-  - `contents/config/main.xml`: KConfigXT schema with `colorTheme` and `locale` keys.
+  - `contents/config/main.xml`: KConfigXT schema with `colorTheme`, `locale` and `customSymbols` keys.
   - `contents/ui/configGeneral.qml`: `KCM.SimpleKCM` form with `Kirigami.FormLayout` (required in Plasma 6). In Plasma 6, pages referenced from `config.qml` are loaded from `contents/ui/`, not `contents/config/`.
+
+### Translations / i18n
+
+All config-dialog strings use `i18n()` with **English as the source language** (KDE convention). Spanish is bundled under `contents/locale/es/`. The UI language follows the Plasma/system locale automatically.
+
+> **Note:** user-installed plasmoids (`~/.local/share/plasma/plasmoids/`) require Plasma ≥ 6.5.6 to load bundled `.mo` files ([bug #501400](https://bugs.kde.org/show_bug.cgi?id=501400)). With an English system locale the msgid is displayed directly and no `.mo` lookup is needed.
+
+**Adding a new language:**
+
+```bash
+cp translate/es.po translate/fr.po   # copy and edit msgstr lines
+./translate/build.sh                  # compiles → contents/locale/fr/LC_MESSAGES/…
+kpackagetool6 --type Plasma/Applet --upgrade .
+rm -rf ~/.cache/plasmashell/qmlcache/
+```
 
 ## Credits and license
 
