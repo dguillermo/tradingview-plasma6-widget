@@ -21,12 +21,104 @@ PlasmoidItem {
     property int _reloadRequest: 0
     property bool _widgetReady: false
 
+    // One line per symbol: "EXCHANGE:TICKER,Display Name" (display name optional).
+    function parseCustomSymbols(raw) {
+        var lines = (raw || "").split("\n")
+        var symbols = []
+        for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim()
+            if (!line) continue
+            var commaIndex = line.indexOf(",")
+            var symbol = (commaIndex === -1 ? line : line.substring(0, commaIndex)).trim()
+            if (!symbol) continue
+            var display = commaIndex === -1 ? symbol : line.substring(commaIndex + 1).trim()
+            if (!display) display = symbol
+            symbols.push({ "s": symbol, "d": display })
+        }
+        return symbols
+    }
+
+    function defaultTabs() {
+        return [
+            {
+                "title": "Indices",
+                "symbols": [
+                    { "s": "FOREXCOM:SPXUSD", "d": "S&P 500" },
+                    { "s": "FOREXCOM:NSXUSD", "d": "NASDAQ 100" },
+                    { "s": "FOREXCOM:DJI", "d": "Dow Jones" },
+                    { "s": "INDEX:NKY", "d": "Japan 225" },
+                    { "s": "INDEX:DEU40", "d": "DAX" },
+                    { "s": "FOREXCOM:UKXGBP", "d": "FTSE 100" },
+                    { "s": "KRX:KOSPI", "d": "KOSPI" }
+                ]
+            },
+            {
+                "title": "Futures",
+                "symbols": [
+                    { "s": "OANDA:XAUUSD", "d": "Gold" },
+                    { "s": "MATBAROFEX:WTI1!", "d": "WTI Oil" },
+                    { "s": "BLACKBULL:BRENT", "d": "Brent Oil" },
+                    { "s": "CAPITALCOM:NATURALGAS", "d": "Natural Gas" },
+                    { "s": "OANDA:XAGUSD", "d": "Silver" }
+                ]
+            },
+            {
+                "title": "Forex",
+                "symbols": [
+                    { "s": "FX:EURUSD", "d": "EUR/USD" },
+                    { "s": "FX:GBPUSD", "d": "GBP/USD" },
+                    { "s": "FX:USDJPY", "d": "USD/JPY" },
+                    { "s": "FX:USDKRW", "d": "USD/KRW" },
+                    { "s": "FX:AUDUSD", "d": "AUD/USD" }
+                ]
+            },
+            {
+                "title": "Crypto",
+                "symbols": [
+                    { "s": "COINBASE:BTCUSD", "d": "Bitcoin" },
+                    { "s": "COINBASE:ETHUSD", "d": "Ethereum" },
+                    { "s": "BINANCE:XRPUSD", "d": "XRP" },
+                    { "s": "COINBASE:ADAUSD", "d": "Cardano" },
+                    { "s": "COINBASE:SOLUSD", "d": "Solana" }
+                ]
+            }
+        ]
+    }
+
     // These can stay here: buildHtml and openConfigure don't touch webView.
     function buildHtml() {
         var colorTheme = Plasmoid.configuration.colorTheme || "dark"
         var locale = Plasmoid.configuration.locale || "en"
         var backgroundColor = colorTheme === "light" ? "#ffffff" : "#232530"
         var borderColor = colorTheme === "light" ? "#e0e3eb" : "#363a45"
+
+        var customSymbols = root.parseCustomSymbols(Plasmoid.configuration.customSymbols)
+        var tabs = customSymbols.length > 0
+            ? [{ "title": "Watchlist", "symbols": customSymbols }]
+            : root.defaultTabs()
+
+        var widgetConfig = {
+            "colorTheme": colorTheme,
+            "dateRange": "12M",
+            "showChart": true,
+            "locale": locale,
+            "largeChartUrl": "",
+            "isTransparent": false,
+            "showSymbolLogo": true,
+            "showFloatingTooltip": false,
+            "width": "100%",
+            "height": "100%",
+            "plotLineColorGrowing": "rgba(38, 166, 154, 1)",
+            "plotLineColorFalling": "rgba(239, 83, 80, 1)",
+            "gridLineColor": "rgba(54, 58, 69, 0.06)",
+            "scaleFontColor": "rgba(209, 212, 220, 1)",
+            "belowLineFillColorGrowing": "rgba(38, 166, 154, 0.12)",
+            "belowLineFillColorFalling": "rgba(239, 83, 80, 0.12)",
+            "belowLineFillColorGrowingBottom": "rgba(38, 166, 154, 0)",
+            "belowLineFillColorFallingBottom": "rgba(239, 83, 80, 0)",
+            "symbolActiveColor": "rgba(61, 158, 255, 0.12)",
+            "tabs": tabs
+        }
 
         return `<!DOCTYPE html>
 <html lang="${locale}">
@@ -81,71 +173,7 @@ PlasmoidItem {
     <div class="tradingview-widget-container">
         <div class="tradingview-widget-container__widget"></div>
         <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
-        {
-            "colorTheme": "${colorTheme}",
-            "dateRange": "12M",
-            "showChart": true,
-            "locale": "${locale}",
-            "largeChartUrl": "",
-            "isTransparent": false,
-            "showSymbolLogo": true,
-            "showFloatingTooltip": false,
-            "width": "100%",
-            "height": "100%",
-            "plotLineColorGrowing": "rgba(38, 166, 154, 1)",
-            "plotLineColorFalling": "rgba(239, 83, 80, 1)",
-            "gridLineColor": "rgba(54, 58, 69, 0.06)",
-            "scaleFontColor": "rgba(209, 212, 220, 1)",
-            "belowLineFillColorGrowing": "rgba(38, 166, 154, 0.12)",
-            "belowLineFillColorFalling": "rgba(239, 83, 80, 0.12)",
-            "belowLineFillColorGrowingBottom": "rgba(38, 166, 154, 0)",
-            "belowLineFillColorFallingBottom": "rgba(239, 83, 80, 0)",
-            "symbolActiveColor": "rgba(61, 158, 255, 0.12)",
-            "tabs": [
-                {
-                    "title": "Indices",
-                    "symbols": [
-                        {"s": "FOREXCOM:SPXUSD", "d": "S&P 500"},
-                        {"s": "FOREXCOM:NSXUSD", "d": "NASDAQ 100"},
-                        {"s": "FOREXCOM:DJI", "d": "Dow Jones"},
-                        {"s": "INDEX:NKY", "d": "Japan 225"},
-                        {"s": "INDEX:DEU40", "d": "DAX"},
-                        {"s": "FOREXCOM:UKXGBP", "d": "FTSE 100"},
-                        {"s": "KRX:KOSPI", "d": "KOSPI"}
-                    ]
-                },
-                {
-                    "title": "Futures",
-                    "symbols": [
-                        {"s": "OANDA:XAUUSD", "d": "Gold"},
-                        {"s": "MATBAROFEX:WTI1!", "d": "WTI Oil"},
-                        {"s": "BLACKBULL:BRENT", "d": "Brent Oil"},
-                        {"s": "CAPITALCOM:NATURALGAS", "d": "Natural Gas"},
-                        {"s": "OANDA:XAGUSD", "d": "Silver"}
-                    ]
-                },
-                {
-                    "title": "Forex",
-                    "symbols": [
-                        {"s": "FX:EURUSD", "d": "EUR/USD"},
-                        {"s": "FX:GBPUSD", "d": "GBP/USD"},
-                        {"s": "FX:USDJPY", "d": "USD/JPY"},
-                        {"s": "FX:USDKRW", "d": "USD/KRW"},
-                        {"s": "FX:AUDUSD", "d": "AUD/USD"}
-                    ]
-                },
-                {
-                    "title": "Crypto",
-                    "symbols": [
-                        {"s": "COINBASE:BTCUSD", "d": "Bitcoin"},
-                        {"s": "COINBASE:ETHUSD", "d": "Ethereum"},
-                        {"s": "BINANCE:XRPUSD", "d": "XRP"},
-                        {"s": "COINBASE:ADAUSD", "d": "Cardano"},
-                        {"s": "COINBASE:SOLUSD", "d": "Solana"}
-                    ]
-                }
-            ]
-        }
+        ${JSON.stringify(widgetConfig)}
         </script>
     </div>
     <!-- TradingView Widget END -->
@@ -166,6 +194,7 @@ PlasmoidItem {
         target: Plasmoid.configuration
         function onColorThemeChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onLocaleChanged() { if (root._widgetReady) root._reloadRequest++ }
+        function onCustomSymbolsChanged() { if (root._widgetReady) root._reloadRequest++ }
     }
 
     fullRepresentation: Rectangle {

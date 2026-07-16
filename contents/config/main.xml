@@ -13,5 +13,9 @@
       <label>Codigo de idioma para TradingView (ej. en, es)</label>
       <default>en</default>
     </entry>
+    <entry name="customSymbols" type="String">
+      <label>Lista de simbolos personalizados a seguir, uno por linea (formato EXCHANGE:TICKER,Nombre). Vacio = pestanas por defecto.</label>
+      <default></default>
+    </entry>
   </group>
 </kcfg>

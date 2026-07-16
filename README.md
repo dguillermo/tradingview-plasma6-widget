@@ -66,8 +66,7 @@ Right-click the widget → **"Configure TradingView Market Overview..."**, or us
 
 - **Color theme**: dark / light (default: dark, same as the original widget)
 - **Language**: ISO code passed to TradingView (`en`, `es`, etc.)
-
-To change the displayed symbols/markets (Indices/Futures/Forex/Crypto tabs), edit the JSON block inside `contents/ui/main.qml` (function `buildHtml()`), following the [official TradingView widget docs](https://www.tradingview.com/widget-docs/widgets/watchlists/market-overview/).
+- **Custom symbols**: one symbol per line, format `EXCHANGE:TICKER,Display Name` (display name optional, defaults to the symbol itself). The symbol **must** be a full TradingView symbol including the exchange prefix — bare tickers like `BTC` or `AAPL` are not valid TradingView instruments and will not resolve. Find the correct symbol via [TradingView's symbol search](https://www.tradingview.com/symbols/) (e.g. `COINBASE:BTCUSD`, `NASDAQ:AAPL`, `FOREXCOM:SPXUSD`). Leave empty to use the default Indices/Futures/Forex/Crypto tabs.
 
 ## Debugging
 
@@ -118,7 +117,7 @@ plasmoidviewer -a org.kde.plasma.tradingview
 
 - No cache or offline mode: if there is no network, the widget shows an error and has no local historical data.
 - Display content is 100% dependent on the external script `s3.tradingview.com/external-embedding/embed-widget-market-overview.js`; future changes by TradingView to their public widget may require updates to the embedded HTML.
-- Symbol/market configuration is not editable from the settings UI (only theme and language); it requires editing `main.qml` directly.
+- Custom symbols replace *all* default tabs with a single "Watchlist" tab; there is currently no UI to define multiple custom tabs or mix custom symbols with the defaults.
 - QtWebEngine spawns one Chromium process per widget instance: memory usage is significantly higher than a pure native QML widget.
 
 ## Changes from the original repository
