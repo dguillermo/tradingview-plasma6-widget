@@ -117,8 +117,7 @@ PlasmoidItem {
             <button id="tv-error-retry" onclick="window.location.reload()">Reintentar</button>
         </div>
 
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async
-            onerror="document.getElementById('tv-error-message').style.display='flex'">
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
         {
             "colorTheme": "${colorTheme}",
             "dateRange": "12M",
@@ -128,8 +127,8 @@ PlasmoidItem {
             "isTransparent": false,
             "showSymbolLogo": true,
             "showFloatingTooltip": false,
-            "width": "450",
-            "height": "650",
+            "width": "100%",
+            "height": "100%",
             "plotLineColorGrowing": "rgba(38, 166, 154, 1)",
             "plotLineColorFalling": "rgba(239, 83, 80, 1)",
             "gridLineColor": "rgba(54, 58, 69, 0.06)",
@@ -187,19 +186,34 @@ PlasmoidItem {
         </script>
 
         <script>
-            // Si a los 10s el iframe del widget no se ha inyectado, TradingView
-            // no respondio (bloqueo de red/DNS/firewall) aunque el <script> cargase.
-            setTimeout(function () {
-                var hasWidget = document.querySelector('.tradingview-widget-container__widget iframe')
-                if (!hasWidget) {
-                    document.getElementById('tv-error-message').style.display = 'flex'
-                }
-            }, 10000)
+            (function () {
+                var errorEl = document.getElementById('tv-error-message')
+                var attempts = 0
+                var maxAttempts = 20
+                var timer = setInterval(function () {
+                    attempts++
+                    var hasWidget = document.querySelector('.tradingview-widget-container__widget iframe, .tradingview-widget-container iframe')
+                    if (hasWidget) {
+                        errorEl.style.display = 'none'
+                        clearInterval(timer)
+                        return
+                    }
+                    if (attempts >= maxAttempts) {
+                        errorEl.style.display = 'flex'
+                        clearInterval(timer)
+                    }
+                }, 1000)
+            })()
         </script>
     </div>
     <!-- TradingView Widget END -->
 </body>
 </html>`
+    }
+
+    function reloadWidget() {
+        // baseUrl HTTPS: sin origen válido, el embed de TradingView falla en QtWebEngine
+        webView.loadHtml(root.buildHtml(), "https://www.tradingview.com/")
     }
 
     function openConfigure() {
@@ -223,10 +237,12 @@ PlasmoidItem {
 
             settings.javascriptEnabled: true
             settings.localContentCanAccessRemoteUrls: true
+            settings.errorPageEnabled: false
 
             onLoadingChanged: function (loadRequest) {
                 if (loadRequest.status === WebEngineView.LoadSucceededStatus) {
                     statusLabel.visible = false
+                    busyIndicator.visible = false
                 } else if (loadRequest.status === WebEngineView.LoadFailedStatus) {
                     statusLabel.text = "Error al cargar el widget: " + loadRequest.errorString
                     statusLabel.visible = true
@@ -234,12 +250,12 @@ PlasmoidItem {
                 }
             }
 
-            Component.onCompleted: loadHtml(root.buildHtml())
+            Component.onCompleted: root.reloadWidget()
 
             Connections {
                 target: Plasmoid.configuration
-                function onColorThemeChanged() { webView.loadHtml(root.buildHtml()) }
-                function onLocaleChanged() { webView.loadHtml(root.buildHtml()) }
+                function onColorThemeChanged() { root.reloadWidget() }
+                function onLocaleChanged() { root.reloadWidget() }
             }
         }
 
