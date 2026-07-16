@@ -16,8 +16,8 @@ KCM.SimpleKCM {
     property string cfg_customSymbolsDefault: ""
 
     readonly property var colorThemeModel: [
-        { text: i18n("Oscuro"), value: "dark" },
-        { text: i18n("Claro"), value: "light" }
+        { text: i18n("Dark"), value: "dark" },
+        { text: i18n("Light"), value: "light" }
     ]
 
     function indexForValue(value) {
@@ -32,7 +32,7 @@ KCM.SimpleKCM {
     Kirigami.FormLayout {
         QQC2.ComboBox {
             id: colorThemeCombo
-            Kirigami.FormData.label: i18n("Tema de color:")
+            Kirigami.FormData.label: i18n("Color theme:")
             textRole: "text"
             valueRole: "value"
             model: page.colorThemeModel
@@ -44,12 +44,12 @@ KCM.SimpleKCM {
 
         QQC2.TextField {
             id: localeField
-            Kirigami.FormData.label: i18n("Idioma (código ISO, ej. en, es):")
+            Kirigami.FormData.label: i18n("Language (ISO code, e.g. en, es):")
             placeholderText: "en"
         }
 
         QQC2.ScrollView {
-            Kirigami.FormData.label: i18n("Símbolos personalizados:")
+            Kirigami.FormData.label: i18n("Custom symbols:")
             Layout.fillWidth: true
             Layout.preferredHeight: 160
 
@@ -64,7 +64,7 @@ KCM.SimpleKCM {
             Kirigami.FormData.label: ""
             Layout.fillWidth: true
             Layout.maximumWidth: 400
-            text: i18n("Un símbolo por línea, formato SIMBOLO_TRADINGVIEW,Nombre a mostrar (el nombre es opcional). El símbolo debe ir en formato EXCHANGE:TICKER (ej. COINBASE:BTCUSD, NASDAQ:AAPL). Vacío = pestañas por defecto (Indices/Futures/Forex/Crypto).")
+            text: i18n("One symbol per line, format TRADINGVIEW_SYMBOL,Display Name (display name is optional). The symbol must be EXCHANGE:TICKER (e.g. COINBASE:BTCUSD, NASDAQ:AAPL). Leave empty for the default tabs (Indices/Futures/Forex/Crypto).")
             wrapMode: Text.WordWrap
             opacity: 0.7
         }

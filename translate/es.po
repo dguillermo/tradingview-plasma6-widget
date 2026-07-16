@@ -1,0 +1,47 @@
+# Spanish translations for org.kde.plasma.tradingview
+# Copyright (C) 2026 TradingView Plasma 6 Widget contributors
+# This file is distributed under the same license as the plasmoid.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: plasma_applet_org.kde.plasma.tradingview 2.2.2\n"
+"Report-Msgid-Bugs-To: https://github.com/dguillermo/tradingview-plasma6-widget\n"
+"POT-Creation-Date: 2026-07-16 17:45+0200\n"
+"PO-Revision-Date: 2026-07-16 17:45+0200\n"
+"Last-Translator: dguillermo\n"
+"Language-Team: Spanish\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "General"
+msgstr "General"
+
+msgid "Dark"
+msgstr "Oscuro"
+
+msgid "Light"
+msgstr "Claro"
+
+msgid "Color theme:"
+msgstr "Tema de color:"
+
+msgid "Language (ISO code, e.g. en, es):"
+msgstr "Idioma (código ISO, ej. en, es):"
+
+msgid "Custom symbols:"
+msgstr "Símbolos personalizados:"
+
+msgid "One symbol per line, format TRADINGVIEW_SYMBOL,Display Name (display name is optional). The symbol must be EXCHANGE:TICKER (e.g. COINBASE:BTCUSD, NASDAQ:AAPL). Leave empty for the default tabs (Indices/Futures/Forex/Crypto)."
+msgstr "Un símbolo por línea, formato SIMBOLO_TRADINGVIEW,Nombre a mostrar (el nombre es opcional). El símbolo debe ir en formato EXCHANGE:TICKER (ej. COINBASE:BTCUSD, NASDAQ:AAPL). Vacío = pestañas por defecto (Indices/Futures/Forex/Crypto)."
+
+msgid "Configure"
+msgstr "Configurar"
+
+msgid "Configure TradingView Market Overview"
+msgstr "Configurar TradingView Market Overview"
+
+msgid "Loading TradingView widget..."
+msgstr "Cargando widget de TradingView..."

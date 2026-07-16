@@ -6,15 +6,15 @@
   <kcfgfile name=""/>
   <group name="General">
     <entry name="colorTheme" type="String">
-      <label>Tema de color del widget (dark/light)</label>
+      <label>Widget color theme (dark/light)</label>
       <default>dark</default>
     </entry>
     <entry name="locale" type="String">
-      <label>Codigo de idioma para TradingView (ej. en, es)</label>
+      <label>Language code for TradingView (e.g. en, es)</label>
       <default>en</default>
     </entry>
     <entry name="customSymbols" type="String">
-      <label>Lista de simbolos personalizados a seguir, uno por linea (formato EXCHANGE:TICKER,Nombre). Vacio = pestanas por defecto.</label>
+      <label>Custom symbols to track, one per line (format EXCHANGE:TICKER,Name). Empty = default tabs.</label>
       <default></default>
     </entry>
   </group>

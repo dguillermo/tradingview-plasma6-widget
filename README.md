@@ -68,6 +68,10 @@ Right-click the widget → **"Configure TradingView Market Overview..."**, or us
 - **Language**: ISO code passed to TradingView (`en`, `es`, etc.)
 - **Custom symbols**: one symbol per line, format `EXCHANGE:TICKER,Display Name` (display name optional, defaults to the symbol itself). The symbol **must** be a full TradingView symbol including the exchange prefix — bare tickers like `BTC` or `AAPL` are not valid TradingView instruments and will not resolve. Find the correct symbol via [TradingView's symbol search](https://www.tradingview.com/symbols/) (e.g. `COINBASE:BTCUSD`, `NASDAQ:AAPL`, `FOREXCOM:SPXUSD`). Leave empty to use the default Indices/Futures/Forex/Crypto tabs.
 
+The widget has no Plasma shell frame (`NoBackground`) so it floats directly on the wallpaper. Default size is ~320×280 logical pixels (resize freely on the desktop using edit mode handles). Right-click → **"Show background"** to toggle the Plasma panel background on or off.
+
+UI strings follow the Plasma/system language via gettext (`i18n()`). Source language is English; Spanish is shipped under `contents/locale/es/`. The **Language** setting above only controls the TradingView embed locale, not the Plasma config dialog.
+
 ## Debugging
 
 **View widget/plasmashell logs:**
@@ -96,8 +100,10 @@ plasmoidviewer -a org.kde.plasma.tradingview
 | Widget not in picker / "written for an older version of Plasma" | Missing `X-Plasma-API-Minimum-Version: "6.0"` in `metadata.json` | Add the key, reinstall with `kpackagetool6 --upgrade .` and re-add the widget |
 | Widget not in picker | Package not installed or invalid `metadata.json` | Run `kpackagetool6 --type Plasma/Applet --install . --verbose` and review output |
 | Permanent black/blank screen | QtWebEngine for Qt6 not installed | Install `qt6-webengine` and restart session |
+| Spinner never goes away / widget stays loading | Upgraded package but plasmashell still uses old compiled QML from memory | `rm -rf ~/.cache/plasmashell/qmlcache/` then `kill $(pgrep plasmashell) && plasmashell --replace &`, remove and re-add the widget |
 | "Could not load TradingView" message | No network, DNS blocking `s3.tradingview.com`, or firewall | Check `curl -I https://s3.tradingview.com` from the same user |
 | Widget loads but renders poorly on Wayland | Known QtWebEngine/Chromium GPU acceleration issue under Wayland | See limitations below |
+| Cannot resize smaller than initial size | Plasmashell still using old QML with `implicitHeight` set | Restart plasmashell (see above) and re-add the widget |
 | General tab empty or only shows "Keyboard Shortcuts" | `configGeneral.qml` in wrong path | Must be at `contents/ui/configGeneral.qml` (not `contents/config/`). Reinstall with `kpackagetool6 --type Plasma/Applet --upgrade .` |
 | `kpackagetool6 --upgrade` fails to remove previous install | Previous install was done with `sudo` (folder owned by root in `~/.local`) | `sudo kpackagetool6 --type Plasma/Applet --remove org.kde.plasma.tradingview`, then reinstall without sudo |
 | Config dialog does not open | `contents/config/main.xml` missing or malformed | Validate with `xmllint --noout contents/config/main.xml` |
@@ -119,6 +125,7 @@ plasmoidviewer -a org.kde.plasma.tradingview
 - Display content is 100% dependent on the external script `s3.tradingview.com/external-embedding/embed-widget-market-overview.js`; future changes by TradingView to their public widget may require updates to the embedded HTML.
 - Custom symbols replace *all* default tabs with a single "Watchlist" tab; there is currently no UI to define multiple custom tabs or mix custom symbols with the defaults.
 - QtWebEngine spawns one Chromium process per widget instance: memory usage is significantly higher than a pure native QML widget.
+- **Full transparency** (wallpaper visible through the widget interior) is not supported on all systems. It requires the Wayland compositor and GPU driver to support per-surface alpha compositing for Chromium/QtWebEngine surfaces. On systems where this is unavailable, the widget interior uses a solid background (`#131722` for dark theme) while the Plasma shell frame is still removed (`NoBackground`).
 
 ## Changes from the original repository
 

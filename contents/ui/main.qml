@@ -3,16 +3,24 @@ import QtQuick.Layouts
 import QtQuick.Controls as QQC2
 import QtWebEngine
 import org.kde.plasma.plasmoid
+import org.kde.plasma.core as PlasmaCore
 import org.kde.plasma.components as PlasmaComponents
 import org.kde.kirigami.platform as Kirigami
 
 PlasmoidItem {
     id: root
 
-    Layout.minimumWidth: 350
-    Layout.minimumHeight: 500
-    Layout.preferredWidth: 450
-    Layout.preferredHeight: 700
+    // Desktop resize uses fullRepresentation Layout.* below.
+    // Keep root hints aligned so panel/desktop agree on mins.
+    Layout.minimumWidth: 150
+    Layout.minimumHeight: 150
+    // 280 logical × 1.4 scale ≈ 390 physical px — sensible default on this display
+    Layout.preferredWidth: 320
+    Layout.preferredHeight: 280
+
+    // No Plasma frame drawn — widget floats directly on the wallpaper.
+    // WebEngine interior remains solid (#131722); only the Plasma shell border is removed.
+    Plasmoid.backgroundHints: PlasmaCore.Types.NoBackground | PlasmaCore.Types.ConfigurableBackground
 
     preferredRepresentation: fullRepresentation
 
@@ -85,12 +93,15 @@ PlasmoidItem {
         ]
     }
 
+    // Actual pixel height of the webView, updated once dimensions are known.
+    // Used to tell TradingView exactly how tall to render; "100%" is unreliable in loadHtml().
+    property int _tvHeight: 280
+
     // These can stay here: buildHtml and openConfigure don't touch webView.
     function buildHtml() {
         var colorTheme = Plasmoid.configuration.colorTheme || "dark"
         var locale = Plasmoid.configuration.locale || "en"
-        var backgroundColor = colorTheme === "light" ? "#ffffff" : "#232530"
-        var borderColor = colorTheme === "light" ? "#e0e3eb" : "#363a45"
+        var tvHeight = Math.max(200, root._tvHeight)
 
         var customSymbols = root.parseCustomSymbols(Plasmoid.configuration.customSymbols)
         var tabs = customSymbols.length > 0
@@ -103,11 +114,11 @@ PlasmoidItem {
             "showChart": true,
             "locale": locale,
             "largeChartUrl": "",
-            "isTransparent": false,
+            "isTransparent": true,
             "showSymbolLogo": true,
             "showFloatingTooltip": false,
             "width": "100%",
-            "height": "100%",
+            "height": tvHeight,
             "plotLineColorGrowing": "rgba(38, 166, 154, 1)",
             "plotLineColorFalling": "rgba(239, 83, 80, 1)",
             "gridLineColor": "rgba(54, 58, 69, 0.06)",
@@ -127,44 +138,25 @@ PlasmoidItem {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TradingView Widget</title>
     <style>
-        body {
+        /* 100vh = exact WebEngineView height inside loadHtml() */
+        html, body {
             margin: 0;
             padding: 0;
+            width: 100vw;
+            height: 100vh;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: ${backgroundColor};
         }
 
+        /* Make TradingView's injected iframe fill the full viewport */
         .tradingview-widget-container {
-            width: 100%;
+            width: 100vw;
             height: 100vh;
-            background: ${backgroundColor};
         }
 
         .tradingview-widget-container__widget {
             width: 100%;
-            height: calc(100% - 25px);
-        }
-
-        .tradingview-widget-copyright {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            font-size: 10px;
-            text-align: center;
-            padding: 5px;
-            background: ${backgroundColor};
-            border-top: 1px solid ${borderColor};
-        }
-
-        .tradingview-widget-copyright a {
-            text-decoration: none;
-            color: #3d9eff;
-        }
-
-        .blue-text {
-            color: #3d9eff;
+            height: 100%;
         }
     </style>
 </head>
@@ -197,25 +189,49 @@ PlasmoidItem {
         function onCustomSymbolsChanged() { if (root._widgetReady) root._reloadRequest++ }
     }
 
-    fullRepresentation: Rectangle {
-        anchors.fill: parent
-        color: Kirigami.Theme.backgroundColor
-        border.color: Qt.rgba(Kirigami.Theme.highlightColor.r, Kirigami.Theme.highlightColor.g, Kirigami.Theme.highlightColor.b, 0.3)
-        border.width: 1
-        radius: 4
+    fullRepresentation: Item {
+        Layout.minimumWidth: 150
+        Layout.minimumHeight: 150
+        Layout.preferredWidth: 320
+        Layout.preferredHeight: 280
+        // Do NOT set implicitWidth/implicitHeight here — Plasma would treat them as the minimum.
+
+        // Debounce timer: reloads TradingView only after resize gesture stops (500 ms idle).
+        // This prevents fighting with Plasma's drag-to-resize interaction.
+        Timer {
+            id: resizeDebounce
+            interval: 500
+            repeat: false
+            onTriggered: {
+                if (root._widgetReady)
+                    webView.loadHtml(root.buildHtml(), "https://example.com/")
+            }
+        }
 
         WebEngineView {
             id: webView
             anchors.fill: parent
-            anchors.margins: 3
+            // Use a solid color matching TradingView's dark/light theme.
+            // Qt.rgba(0,0,0,0) (transparent) requires compositor alpha support which may be absent.
+            backgroundColor: Plasmoid.configuration.colorTheme === "light" ? "#ffffff" : "#131722"
+            // Prevent Chromium from reporting a large implicit size upward to Plasma.
+            implicitWidth: 1
+            implicitHeight: 1
 
             settings.javascriptEnabled: true
             settings.localContentCanAccessRemoteUrls: true
             settings.errorPageEnabled: false
             settings.webGLEnabled: true
 
-            // _reloadRequest incremented from PlasmoidItem → load new HTML here
-            // (webView IS in scope inside fullRepresentation Component)
+            // Update _tvHeight when the view is resized; debounce to avoid reload storms.
+            onHeightChanged: {
+                var h = Math.floor(height)
+                if (h > 50 && Math.abs(h - root._tvHeight) > 20) {
+                    root._tvHeight = h
+                    resizeDebounce.restart()
+                }
+            }
+
             Connections {
                 target: root
                 function on_ReloadRequestChanged() {
@@ -242,6 +258,7 @@ PlasmoidItem {
             }
 
             Component.onCompleted: {
+                root._tvHeight = Math.max(200, Math.floor(height))
                 root._widgetReady = true
                 webView.loadHtml(root.buildHtml(), "https://example.com/")
             }
@@ -274,7 +291,7 @@ PlasmoidItem {
             anchors.top: busyIndicator.bottom
             anchors.topMargin: 8
             anchors.horizontalCenter: parent.horizontalCenter
-            text: "Cargando widget de TradingView..."
+            text: i18n("Loading TradingView widget...")
             visible: true
             z: 999
             font.pixelSize: 14
