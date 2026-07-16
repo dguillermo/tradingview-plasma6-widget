@@ -68,55 +68,12 @@ PlasmoidItem {
         .blue-text {
             color: #3d9eff;
         }
-
-        #tv-error-message {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-            box-sizing: border-box;
-            color: #e06c75;
-            background: ${backgroundColor};
-        }
-
-        #tv-error-message p {
-            margin: 4px 0;
-            color: ${colorTheme === "light" ? "#333333" : "#d1d4dc"};
-        }
-
-        #tv-error-retry {
-            margin-top: 12px;
-            padding: 6px 16px;
-            border-radius: 4px;
-            border: 1px solid #3d9eff;
-            background: transparent;
-            color: #3d9eff;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        #tv-error-retry:hover {
-            background: rgba(61, 158, 255, 0.15);
-        }
     </style>
 </head>
 <body>
     <!-- TradingView Widget BEGIN -->
     <div class="tradingview-widget-container">
-
-        <div id="tv-error-message">
-            <strong>No se pudo cargar TradingView</strong>
-            <p>Comprueba tu conexión a internet o si s3.tradingview.com está accesible.</p>
-            <button id="tv-error-retry" onclick="window.location.reload()">Reintentar</button>
-        </div>
-
+        <div class="tradingview-widget-container__widget"></div>
         <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
         {
             "colorTheme": "${colorTheme}",
@@ -183,27 +140,6 @@ PlasmoidItem {
                 }
             ]
         }
-        </script>
-
-        <script>
-            (function () {
-                var errorEl = document.getElementById('tv-error-message')
-                var attempts = 0
-                var maxAttempts = 20
-                var timer = setInterval(function () {
-                    attempts++
-                    var hasWidget = document.querySelector('.tradingview-widget-container__widget iframe, .tradingview-widget-container iframe')
-                    if (hasWidget) {
-                        errorEl.style.display = 'none'
-                        clearInterval(timer)
-                        return
-                    }
-                    if (attempts >= maxAttempts) {
-                        errorEl.style.display = 'flex'
-                        clearInterval(timer)
-                    }
-                }, 1000)
-            })()
         </script>
     </div>
     <!-- TradingView Widget END -->
