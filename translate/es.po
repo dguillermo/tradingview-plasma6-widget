@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: plasma_applet_org.kde.plasma.tradingview 2.2.2\n"
+"Project-Id-Version: plasma_applet_org.kde.plasma.tradingview 2.2.3\n"
 "Report-Msgid-Bugs-To: https://github.com/dguillermo/tradingview-plasma6-widget\n"
 "POT-Creation-Date: 2026-07-16 17:45+0200\n"
-"PO-Revision-Date: 2026-07-16 17:45+0200\n"
+"PO-Revision-Date: 2026-07-17 17:40+0200\n"
 "Last-Translator: dguillermo\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -30,6 +30,27 @@ msgstr "Tema de color:"
 
 msgid "Language (ISO code, e.g. en, es):"
 msgstr "Idioma (código ISO, ej. en, es):"
+
+msgid "1 day"
+msgstr "1 día"
+
+msgid "1 month"
+msgstr "1 mes"
+
+msgid "3 months"
+msgstr "3 meses"
+
+msgid "12 months"
+msgstr "12 meses"
+
+msgid "60 months"
+msgstr "60 meses"
+
+msgid "All"
+msgstr "Todo"
+
+msgid "Initial chart range:"
+msgstr "Rango inicial del gráfico:"
 
 msgid "Custom symbols:"
 msgstr "Símbolos personalizados:"

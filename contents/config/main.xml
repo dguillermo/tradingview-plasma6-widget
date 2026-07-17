@@ -13,6 +13,10 @@
       <label>Language code for TradingView (e.g. en, es)</label>
       <default>en</default>
     </entry>
+    <entry name="dateRange" type="String">
+      <label>Initial chart date range (1D, 1M, 3M, 12M, 60M, ALL)</label>
+      <default>1D</default>
+    </entry>
     <entry name="customSymbols" type="String">
       <label>Custom symbols to track, one per line (format EXCHANGE:TICKER,Name). Empty = default tabs.</label>
       <default></default>

@@ -101,6 +101,7 @@ PlasmoidItem {
     function buildHtml() {
         var colorTheme = Plasmoid.configuration.colorTheme || "dark"
         var locale = Plasmoid.configuration.locale || "en"
+        var dateRange = Plasmoid.configuration.dateRange || "1D"
         var tvHeight = Math.max(200, root._tvHeight)
 
         var customSymbols = root.parseCustomSymbols(Plasmoid.configuration.customSymbols)
@@ -110,7 +111,7 @@ PlasmoidItem {
 
         var widgetConfig = {
             "colorTheme": colorTheme,
-            "dateRange": "12M",
+            "dateRange": dateRange,
             "showChart": true,
             "locale": locale,
             "largeChartUrl": "",
@@ -186,6 +187,7 @@ PlasmoidItem {
         target: Plasmoid.configuration
         function onColorThemeChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onLocaleChanged() { if (root._widgetReady) root._reloadRequest++ }
+        function onDateRangeChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onCustomSymbolsChanged() { if (root._widgetReady) root._reloadRequest++ }
     }
 

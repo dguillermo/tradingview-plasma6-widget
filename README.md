@@ -66,6 +66,7 @@ Right-click the widget → **"Configure TradingView Market Overview..."**, or us
 
 - **Color theme**: dark / light (default: dark, same as the original widget)
 - **Language**: ISO code passed to TradingView (`en`, `es`, etc.)
+- **Initial chart range**: `1D` / `1M` / `3M` / `12M` / `60M` / `ALL` (default: **1D**). Sets TradingView's `dateRange` when the widget loads.
 - **Custom symbols**: one symbol per line, format `EXCHANGE:TICKER,Display Name` (display name optional, defaults to the symbol itself). The symbol **must** be a full TradingView symbol including the exchange prefix — bare tickers like `BTC` or `AAPL` are not valid TradingView instruments and will not resolve. Find the correct symbol via [TradingView's symbol search](https://www.tradingview.com/symbols/) (e.g. `COINBASE:BTCUSD`, `NASDAQ:AAPL`, `FOREXCOM:SPXUSD`). Leave empty to use the default Indices/Futures/Forex/Crypto tabs.
 
 The widget has no Plasma shell frame (`NoBackground`) so it floats directly on the wallpaper. Default size is ~320×280 logical pixels (resize freely on the desktop using edit mode handles). Right-click → **"Show background"** to toggle the Plasma panel background on or off.
@@ -153,7 +154,7 @@ Full migration from Plasma 5 / Qt 5 / KF5 to Plasma 6 / Qt 6 / KF6:
 ### `contents/config/` and `contents/ui/configGeneral.qml`
 - `import org.kde.plasma.configuration 2.0` → versionless.
 - The original `config.qml` referenced `configGeneral.qml`, a file that **did not exist** in the original repo (the config dialog was broken out of the box). Added:
-  - `contents/config/main.xml`: KConfigXT schema with `colorTheme`, `locale` and `customSymbols` keys.
+  - `contents/config/main.xml`: KConfigXT schema with `colorTheme`, `locale`, `dateRange` and `customSymbols` keys.
   - `contents/ui/configGeneral.qml`: `KCM.SimpleKCM` form with `Kirigami.FormLayout` (required in Plasma 6). In Plasma 6, pages referenced from `config.qml` are loaded from `contents/ui/`, not `contents/config/`.
 
 ### Translations / i18n

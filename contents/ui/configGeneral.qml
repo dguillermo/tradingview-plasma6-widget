@@ -12,6 +12,8 @@ KCM.SimpleKCM {
     property string cfg_colorThemeDefault: "dark"
     property alias cfg_locale: localeField.text
     property string cfg_localeDefault: "en"
+    property string cfg_dateRange
+    property string cfg_dateRangeDefault: "1D"
     property alias cfg_customSymbols: customSymbolsField.text
     property string cfg_customSymbolsDefault: ""
 
@@ -20,10 +22,24 @@ KCM.SimpleKCM {
         { text: i18n("Light"), value: "light" }
     ]
 
-    function indexForValue(value) {
-        for (var i = 0; i < colorThemeModel.length; i++) {
-            if (colorThemeModel[i].value === value) {
+    readonly property var dateRangeModel: [
+        { text: i18n("1 day"), value: "1D" },
+        { text: i18n("1 month"), value: "1M" },
+        { text: i18n("3 months"), value: "3M" },
+        { text: i18n("12 months"), value: "12M" },
+        { text: i18n("60 months"), value: "60M" },
+        { text: i18n("All"), value: "ALL" }
+    ]
+
+    function indexForValue(model, value, fallback) {
+        for (var i = 0; i < model.length; i++) {
+            if (model[i].value === value) {
                 return i
+            }
+        }
+        for (var j = 0; j < model.length; j++) {
+            if (model[j].value === fallback) {
+                return j
             }
         }
         return 0
@@ -36,7 +52,7 @@ KCM.SimpleKCM {
             textRole: "text"
             valueRole: "value"
             model: page.colorThemeModel
-            currentIndex: page.indexForValue(page.cfg_colorTheme || "dark")
+            currentIndex: page.indexForValue(page.colorThemeModel, page.cfg_colorTheme || "dark", "dark")
             onActivated: function(index) {
                 page.cfg_colorTheme = page.colorThemeModel[index].value
             }
@@ -46,6 +62,18 @@ KCM.SimpleKCM {
             id: localeField
             Kirigami.FormData.label: i18n("Language (ISO code, e.g. en, es):")
             placeholderText: "en"
+        }
+
+        QQC2.ComboBox {
+            id: dateRangeCombo
+            Kirigami.FormData.label: i18n("Initial chart range:")
+            textRole: "text"
+            valueRole: "value"
+            model: page.dateRangeModel
+            currentIndex: page.indexForValue(page.dateRangeModel, page.cfg_dateRange || "1D", "1D")
+            onActivated: function(index) {
+                page.cfg_dateRange = page.dateRangeModel[index].value
+            }
         }
 
         QQC2.ScrollView {
