@@ -67,6 +67,9 @@ Right-click the widget → **"Configure TradingView Market Overview..."**, or us
 - **Color theme**: dark / light (default: dark, same as the original widget)
 - **Language**: ISO code passed to TradingView (`en`, `es`, etc.)
 - **Initial chart range**: `1D` / `1M` / `3M` / `12M` / `60M` / `ALL` (default: **1D**). Sets TradingView's `dateRange` when the widget loads.
+- **Show mini chart**: toggle TradingView's `showChart` (default: on). Off = list-only, more compact.
+- **Show symbol logos**: toggle `showSymbolLogo` (default: on).
+- **Floating tooltip**: toggle `showFloatingTooltip` (default: off). When on, hovering the chart shows price-move details.
 - **Custom symbols**: one symbol per line, format `EXCHANGE:TICKER,Display Name` (display name optional, defaults to the symbol itself). The symbol **must** be a full TradingView symbol including the exchange prefix — bare tickers like `BTC` or `AAPL` are not valid TradingView instruments and will not resolve. Find the correct symbol via [TradingView's symbol search](https://www.tradingview.com/symbols/) (e.g. `COINBASE:BTCUSD`, `NASDAQ:AAPL`, `FOREXCOM:SPXUSD`). Leave empty to use the default Indices/Futures/Forex/Crypto tabs.
 
 The widget has no Plasma shell frame (`NoBackground`) so it floats directly on the wallpaper. Default size is ~320×280 logical pixels (resize freely on the desktop using edit mode handles). Right-click → **"Show background"** to toggle the Plasma panel background on or off.

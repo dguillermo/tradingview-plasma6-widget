@@ -14,6 +14,12 @@ KCM.SimpleKCM {
     property string cfg_localeDefault: "en"
     property string cfg_dateRange
     property string cfg_dateRangeDefault: "1D"
+    property alias cfg_showChart: showChartCheck.checked
+    property bool cfg_showChartDefault: true
+    property alias cfg_showSymbolLogo: showSymbolLogoCheck.checked
+    property bool cfg_showSymbolLogoDefault: true
+    property alias cfg_showFloatingTooltip: showFloatingTooltipCheck.checked
+    property bool cfg_showFloatingTooltipDefault: false
     property alias cfg_customSymbols: customSymbolsField.text
     property string cfg_customSymbolsDefault: ""
 
@@ -74,6 +80,24 @@ KCM.SimpleKCM {
             onActivated: function(index) {
                 page.cfg_dateRange = page.dateRangeModel[index].value
             }
+        }
+
+        QQC2.CheckBox {
+            id: showChartCheck
+            Kirigami.FormData.label: i18n("Show mini chart:")
+            text: i18n("Display sparkline chart under the symbol list")
+        }
+
+        QQC2.CheckBox {
+            id: showSymbolLogoCheck
+            Kirigami.FormData.label: i18n("Show symbol logos:")
+            text: i18n("Display exchange/company logos next to each symbol")
+        }
+
+        QQC2.CheckBox {
+            id: showFloatingTooltipCheck
+            Kirigami.FormData.label: i18n("Floating tooltip:")
+            text: i18n("Show price details when hovering the chart")
         }
 
         QQC2.ScrollView {

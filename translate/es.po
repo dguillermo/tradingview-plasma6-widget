@@ -4,10 +4,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: plasma_applet_org.kde.plasma.tradingview 2.2.3\n"
+"Project-Id-Version: plasma_applet_org.kde.plasma.tradingview 2.2.4\n"
 "Report-Msgid-Bugs-To: https://github.com/dguillermo/tradingview-plasma6-widget\n"
 "POT-Creation-Date: 2026-07-16 17:45+0200\n"
-"PO-Revision-Date: 2026-07-17 17:40+0200\n"
+"PO-Revision-Date: 2026-07-17 18:00+0200\n"
 "Last-Translator: dguillermo\n"
 "Language-Team: Spanish\n"
 "Language: es\n"
@@ -51,6 +51,24 @@ msgstr "Todo"
 
 msgid "Initial chart range:"
 msgstr "Rango inicial del gráfico:"
+
+msgid "Show mini chart:"
+msgstr "Mostrar mini gráfico:"
+
+msgid "Display sparkline chart under the symbol list"
+msgstr "Mostrar gráfico sparkline bajo la lista de símbolos"
+
+msgid "Show symbol logos:"
+msgstr "Mostrar logos de símbolos:"
+
+msgid "Display exchange/company logos next to each symbol"
+msgstr "Mostrar logos de exchange/empresa junto a cada símbolo"
+
+msgid "Floating tooltip:"
+msgstr "Tooltip flotante:"
+
+msgid "Show price details when hovering the chart"
+msgstr "Mostrar detalle de precio al pasar el ratón por el gráfico"
 
 msgid "Custom symbols:"
 msgstr "Símbolos personalizados:"

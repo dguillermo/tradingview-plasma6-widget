@@ -102,6 +102,10 @@ PlasmoidItem {
         var colorTheme = Plasmoid.configuration.colorTheme || "dark"
         var locale = Plasmoid.configuration.locale || "en"
         var dateRange = Plasmoid.configuration.dateRange || "1D"
+        // Bool KConfig keys can be undefined until first write; default to current hardcode.
+        var showChart = Plasmoid.configuration.showChart !== false
+        var showSymbolLogo = Plasmoid.configuration.showSymbolLogo !== false
+        var showFloatingTooltip = Plasmoid.configuration.showFloatingTooltip === true
         var tvHeight = Math.max(200, root._tvHeight)
 
         var customSymbols = root.parseCustomSymbols(Plasmoid.configuration.customSymbols)
@@ -112,12 +116,12 @@ PlasmoidItem {
         var widgetConfig = {
             "colorTheme": colorTheme,
             "dateRange": dateRange,
-            "showChart": true,
+            "showChart": showChart,
             "locale": locale,
             "largeChartUrl": "",
             "isTransparent": true,
-            "showSymbolLogo": true,
-            "showFloatingTooltip": false,
+            "showSymbolLogo": showSymbolLogo,
+            "showFloatingTooltip": showFloatingTooltip,
             "width": "100%",
             "height": tvHeight,
             "plotLineColorGrowing": "rgba(38, 166, 154, 1)",
@@ -188,6 +192,9 @@ PlasmoidItem {
         function onColorThemeChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onLocaleChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onDateRangeChanged() { if (root._widgetReady) root._reloadRequest++ }
+        function onShowChartChanged() { if (root._widgetReady) root._reloadRequest++ }
+        function onShowSymbolLogoChanged() { if (root._widgetReady) root._reloadRequest++ }
+        function onShowFloatingTooltipChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onCustomSymbolsChanged() { if (root._widgetReady) root._reloadRequest++ }
     }
 

@@ -17,6 +17,18 @@
       <label>Initial chart date range (1D, 1M, 3M, 12M, 60M, ALL)</label>
       <default>1D</default>
     </entry>
+    <entry name="showChart" type="Bool">
+      <label>Show mini chart below the symbol list</label>
+      <default>true</default>
+    </entry>
+    <entry name="showSymbolLogo" type="Bool">
+      <label>Show symbol logos in the list</label>
+      <default>true</default>
+    </entry>
+    <entry name="showFloatingTooltip" type="Bool">
+      <label>Show floating tooltip with price details on chart hover</label>
+      <default>false</default>
+    </entry>
     <entry name="customSymbols" type="String">
       <label>Custom symbols to track, one per line (format EXCHANGE:TICKER,Name). Empty = default tabs.</label>
       <default></default>
