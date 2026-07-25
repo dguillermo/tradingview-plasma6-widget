@@ -108,7 +108,12 @@ PlasmoidItem {
         var showFloatingTooltip = Plasmoid.configuration.showFloatingTooltip === true
         var tvHeight = Math.max(200, root._tvHeight)
 
-        var customSymbols = root.parseCustomSymbols(Plasmoid.configuration.customSymbols)
+        var rawSymbols = Plasmoid.configuration.customSymbols || ""
+        // If the field is empty, fall back to the last non-empty value saved automatically.
+        if (!rawSymbols.trim()) {
+            rawSymbols = Plasmoid.configuration.lastCustomSymbols || ""
+        }
+        var customSymbols = root.parseCustomSymbols(rawSymbols)
         var tabs = customSymbols.length > 0
             ? [{ "title": "Watchlist", "symbols": customSymbols }]
             : root.defaultTabs()
@@ -195,7 +200,13 @@ PlasmoidItem {
         function onShowChartChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onShowSymbolLogoChanged() { if (root._widgetReady) root._reloadRequest++ }
         function onShowFloatingTooltipChanged() { if (root._widgetReady) root._reloadRequest++ }
-        function onCustomSymbolsChanged() { if (root._widgetReady) root._reloadRequest++ }
+        function onCustomSymbolsChanged() {
+            var raw = Plasmoid.configuration.customSymbols || ""
+            if (raw.trim()) {
+                Plasmoid.configuration.lastCustomSymbols = raw
+            }
+            if (root._widgetReady) root._reloadRequest++
+        }
     }
 
     fullRepresentation: Item {

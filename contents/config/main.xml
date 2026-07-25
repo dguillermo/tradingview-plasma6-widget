@@ -30,7 +30,11 @@
       <default>false</default>
     </entry>
     <entry name="customSymbols" type="String">
-      <label>Custom symbols to track, one per line (format EXCHANGE:TICKER,Name). Empty = default tabs.</label>
+      <label>Custom symbols to track, one per line (format EXCHANGE:TICKER,Name). Empty = use last saved or default tabs.</label>
+      <default></default>
+    </entry>
+    <entry name="lastCustomSymbols" type="String">
+      <label>Last non-empty custom symbols saved. Used as fallback when customSymbols is cleared.</label>
       <default></default>
     </entry>
   </group>
